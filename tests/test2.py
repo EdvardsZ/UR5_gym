@@ -17,58 +17,6 @@ import models
 from gym_ur5.models.robots import ur5_rg2
 import helpers
 
-
-def add_ur5_controller(
-        _ur5_with_rg2: ur5_rg2.UR5RG2, controller_period: float
-) -> None:
-
-    # Set the controller period
-    assert _ur5_with_rg2.set_controller_period(period=controller_period)
-
-    _ur5_with_rg2.get_joint(
-        joint_name="shoulder_pan_joint"
-    ).to_gazebo().set_max_generalized_force(max_force=500.0)
-    _ur5_with_rg2.get_joint(
-        joint_name="shoulder_lift_joint"
-    ).to_gazebo().set_max_generalized_force(max_force=500.0)
-    _ur5_with_rg2.get_joint(
-        joint_name="elbow_joint"
-    ).to_gazebo().set_max_generalized_force(max_force=500.0)
-    _ur5_with_rg2.get_joint(
-        joint_name="wrist_1_joint"
-    ).to_gazebo().set_max_generalized_force(max_force=500.0)
-    _ur5_with_rg2.get_joint(
-        joint_name="wrist_2_joint"
-    ).to_gazebo().set_max_generalized_force(max_force=500.0)
-    _ur5_with_rg2.get_joint(
-        joint_name="wrist_3_joint"
-    ).to_gazebo().set_max_generalized_force(max_force=500.0)
-
-    # Increase the max effort of the fingers
-    _ur5_with_rg2.get_joint(
-        joint_name="rg2_finger_joint1"
-    ).to_gazebo().set_max_generalized_force(max_force=500.0)
-    _ur5_with_rg2.get_joint(
-        joint_name="rg2_finger_joint2"
-    ).to_gazebo().set_max_generalized_force(max_force=500.0)
-
-    # Insert the ComputedTorqueFixedBase controller
-    assert _ur5_with_rg2.to_gazebo().insert_model_plugin(
-        *controllers.ComputedTorqueFixedBase(
-            kp=[100.0] * (_ur5_with_rg2.dofs() - 2) + [10000.0] * 2,
-            ki=[0.0] * _ur5_with_rg2.dofs(),
-            kd=[17.5] * (_ur5_with_rg2.dofs() - 2) + [100.0] * 2,
-            urdf=_ur5_with_rg2.get_model_file("ur5_rg2"),
-            joints=list(_ur5_with_rg2.joint_names()),
-        ).args()
-    )
-
-    # Initialize the controller to the current state
-    assert _ur5_with_rg2.set_joint_position_targets(_ur5_with_rg2.joint_positions())
-    assert _ur5_with_rg2.set_joint_velocity_targets(_ur5_with_rg2.joint_velocities())
-    assert _ur5_with_rg2.set_joint_acceleration_targets(_ur5_with_rg2.joint_accelerations())
-
-
 def get_ur5_ik(
         _ur5_with_rg2: ur5_rg2.UR5RG2, optimized_joints: List[str]
 ) -> inverse_kinematics_nlp.InverseKinematicsNLP:
@@ -156,7 +104,7 @@ ur5_with_rg2.get_link("rg2_rightfinger").to_gazebo().enable_contact_detection(Tr
 gazebo.run(paused=True)
 
 # Add a custom joint controller to the UR5
-add_ur5_controller(_ur5_with_rg2=ur5_with_rg2, controller_period=gazebo.step_size())
+ur5_with_rg2.add_ur5_controller(controller_period=gazebo.step_size())
 
 # Populate the world
 table = models.insert_table(world=world)

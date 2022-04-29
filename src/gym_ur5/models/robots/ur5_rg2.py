@@ -7,7 +7,7 @@ from gym_ignition.utils.scenario import get_unique_model_name
 from scenario import core as scenario
 
 from scenario import gazebo as scenario_gazebo
-
+from gym_ignition.context.gazebo import controllers
 
 class UR5RG2(model_wrapper.ModelWrapper, model_with_file.ModelWithFile):
     def __init__(
@@ -77,3 +77,47 @@ class UR5RG2(model_wrapper.ModelWrapper, model_with_file.ModelWithFile):
     @classmethod
     def get_model_file(self, robot_name) -> str:
         return 'ur5_rg2/ur5_rg2.urdf'
+
+
+    # This is necessary while we dont use move it controller
+    def add_ur5_controller(self,
+            controller_period: float
+    ) -> None:
+
+        # Set the controller period
+        assert self.set_controller_period(period=controller_period)
+
+        self.get_joint(
+            joint_name="shoulder_pan_joint"
+        ).to_gazebo().set_max_generalized_force(max_force=500.0)
+        self.get_joint(
+            joint_name="shoulder_lift_joint"
+        ).to_gazebo().set_max_generalized_force(max_force=500.0)
+        self.get_joint(
+            joint_name="elbow_joint"
+        ).to_gazebo().set_max_generalized_force(max_force=500.0)
+        self.get_joint(
+            joint_name="wrist_1_joint"
+        ).to_gazebo().set_max_generalized_force(max_force=500.0)
+        self.get_joint(
+            joint_name="wrist_2_joint"
+        ).to_gazebo().set_max_generalized_force(max_force=500.0)
+        self.get_joint(
+            joint_name="wrist_3_joint"
+        ).to_gazebo().set_max_generalized_force(max_force=500.0)
+
+        # Insert the ComputedTorqueFixedBase controller
+        assert self.to_gazebo().insert_model_plugin(
+            *controllers.ComputedTorqueFixedBase(
+                kp=[100.0] * (self.dofs() - 2) + [10000.0] * 2,
+                ki=[0.0] * self.dofs(),
+                kd=[17.5] * (self.dofs() - 2) + [100.0] * 2,
+                urdf=self.get_model_file("ur5_rg2"),
+                joints=list(self.joint_names()),
+            ).args()
+        )
+
+        # Initialize the controller to the current state
+        assert self.set_joint_position_targets(self.joint_positions())
+        assert self.set_joint_velocity_targets(self.joint_velocities())
+        assert self.set_joint_acceleration_targets(self.joint_accelerations())
