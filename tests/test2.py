@@ -170,6 +170,8 @@ ik = get_ur5_ik(_ur5_with_rg2=ur5_with_rg2, optimized_joints=ik_joints)
 
 end_effector_frame = ur5_with_rg2.get_link(link_name="tool0")
 
+initial_position = np.array([0.34143738, -0.10143743, 1.01]) + np.array([-0.02, 0, 0.6])
+
 while True:
     gazebo.run(paused=True)
 
@@ -186,16 +188,16 @@ while True:
     )
 
     # Set the joint references
-    assert ur5_with_rg2.set_joint_position_targets(over_joint_configuration, ik_joints)
+    #assert ur5_with_rg2.set_joint_position_targets(over_joint_configuration, ik_joints)
 
     # Run the simulation until the EE reached the desired position
-    while not end_effector_reached(
-            position=position_over_cube,
-            end_effector_link=end_effector_frame,
-            max_error_pos=0.5,
-            max_error_vel=0.5,
-    ):
-        gazebo.run()
+   # while not end_effector_reached(
+   #          position=position_over_cube,
+   #          end_effector_link=end_effector_frame,
+   #          max_error_pos=0.5,
+   #          max_error_vel=0.5,
+   # ):
+   #     gazebo.run()
 
     # Wait a bit more
     [gazebo.run() for _ in range(500)]
