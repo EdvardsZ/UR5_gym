@@ -30,6 +30,8 @@ class Reach(task.Task, abc.ABC):
         self.reset_space = None
         self.workspace_centre = np.array([0.32143738, -0.10143743, 1.36])
         self.workspace_volume = np.array([0.4, 0.4, 0.6])
+
+        self._is_done = False
         return
 
     def create_spaces(self) -> Tuple[ActionSpace, ObservationSpace]:
@@ -105,31 +107,18 @@ class Reach(task.Task, abc.ABC):
         return reward
 
     def is_done(self) -> bool:
-
-        # Get the observation
-        #observation = self.get_observation()
-
-        # The environment is done if the observation is outside its space
-        #done = not self.reset_space.contains(observation)
-
-        return False
+        done = self._is_done
+        return done
 
     def reset_task(self) -> None:
-        self.set_position = np.array([0.32143738, -0.10143743, 1.61])
-        self.random_position = self.set_position
-        self.count = 0
+        self._is_done = False
+        self.ee_position = np.array([0.32143738, -0.10143743, 1.61])
+
         model = self.world.get_model(self.model_name)
         joint_config = [1.47838380e+00, -2.15699582e+00, -8.14691050e-05, -2.52916159e+00, 1.56735617e+00, -9.25439234e-02, 0, 0]
-        joints = ["shoulder_pan_joint",
-                  "shoulder_lift_joint",
-                  "elbow_joint",
-                  "wrist_1_joint",
-                  "wrist_2_joint",
-                  "wrist_3_joint",
-                  "rg2_finger_joint1",
-                  "rg2_finger_joint2"]
         # Set the joint references
-        assert model.set_joint_position_targets(joint_config, joints)
+        assert model.set_joint_position_targets(joint_config, self.get_joints())
+
         return
 
     def get_joints(self):

@@ -6,7 +6,7 @@ from . import tasks, models, randomizers
 max_float = float(numpy.finfo(numpy.float32).max)
 
 register(
-    id="Idiot-v1",
+    id="CopyPaste-v1",
     entry_point="gym_ignition.runtimes.gazebo_runtime:GazeboRuntime",
     max_episode_steps=5000,
     kwargs={

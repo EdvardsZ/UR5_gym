@@ -1,7 +1,3 @@
-# Copyright (C) 2020 Istituto Italiano di Tecnologia (IIT). All rights reserved.
-# This software may be modified and distributed under the terms of the
-# GNU Lesser General Public License v2.1 or any later version.
-
 import functools
 import time
 
@@ -61,17 +57,13 @@ for epoch in range(3):
         # Execute a random action
         action = env.action_space.sample()
         observation, reward, done, _ = env.step(action)
+        print(observation, reward, done, _)
         #input('test')
         # Render the environment.
         # It is not required to call this in the loop if physics is not randomized.
         env.render('human')
         # Accumulate the reward
         totalReward += reward
-        # Print the observation
-        msg = ""
-        for value in observation:
-            msg += "\t%.6f" % value
-        logger.debug(msg)
     #time.sleep(5)
     print(f"Reward episode #{epoch}: {totalReward}")
 
