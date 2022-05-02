@@ -16,6 +16,7 @@ from scipy.spatial.transform import Rotation as R
 from gym_ignition.rbd import conversions
 from gym_ur5.models.robots import ur5_rg2
 import random
+from scenario import core as scenario_core
 class Reach(task.Task, abc.ABC):
     def __init__(
             self, agent_rate: float, reward_cart_at_center: bool = True, **kwargs
@@ -27,7 +28,7 @@ class Reach(task.Task, abc.ABC):
 
         # Space for resetting the task
         self.reset_space = None
-
+        self.random_position = None
         # Private attributes
         self._force_mag = 20.0  # Nm
         self._reward_cart_at_center = reward_cart_at_center
@@ -65,18 +66,31 @@ class Reach(task.Task, abc.ABC):
         return action_space, observation_space
     def set_action(self, action: Action) -> None:
         print("Action")
-        random_position = np.array([0.34143738, -0.10143743, 1.01]) + np.array([-0.02, 0, random.uniform(0, 0.6)])
         model = self.world.get_model(self.model_name)
-        print("Reach random position:", random_position)
+        end_effector_frame = model.get_link(link_name="tool0")
+        if self.random_position is not None:
+            print("random position is not none")
+            return
+        self.random_position = np.array([0.34143738, -0.10143743, 1.01]) + np.array([-0.02, 0, random.uniform(0, 0.6)])
+        print("Reach random position:", self.random_position)
         over_joint_configuration = self.solve_ik(
-            target_position=random_position,
+            target_position=self.random_position,
             target_orientation=np.array([0, 1.0, 0, 0]),
             ik=self.ik,
         )
-        end_effector_frame = model.get_link(link_name="tool0")
+        print(over_joint_configuration)
+        #end_effector_frame = model.get_link(link_name="tool0")
 
+        joints = ["shoulder_pan_joint",
+                "shoulder_lift_joint",
+                "elbow_joint",
+                "wrist_1_joint",
+                "wrist_2_joint",
+                "wrist_3_joint",
+                "rg2_finger_joint1",
+                "rg2_finger_joint2"]
         # Set the joint references
-        assert model.set_joint_position_targets(over_joint_configuration)
+        assert model.set_joint_position_targets(over_joint_configuration, joints)
 
 
         # Calculate the force
@@ -123,6 +137,7 @@ class Reach(task.Task, abc.ABC):
         return False
 
     def reset_task(self) -> None:
+        self.random_position = None
         return
         # if self.model_name not in self.world.model_names():
         #     raise RuntimeError("Cartpole model not found in the world")
@@ -209,3 +224,18 @@ class Reach(task.Task, abc.ABC):
         _ur5_with_rg2.ik = ik
 
         return ik
+
+    def end_effector_reached(
+            position: np.array,
+            end_effector_link: scenario_core.Link,
+            max_error_pos: float = 0.01,
+            max_error_vel: float = 0.5,
+            mask: np.ndarray = np.array([1.0, 1.0, 1.0]),
+    ) -> bool:
+        masked_target = mask * position
+        masked_current = mask * np.array(end_effector_link.position())
+
+        return (
+                np.linalg.norm(masked_current - masked_target) < max_error_pos
+                and np.linalg.norm(end_effector_link.world_linear_velocity()) < max_error_vel
+        )
