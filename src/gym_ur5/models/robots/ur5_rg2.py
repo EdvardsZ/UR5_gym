@@ -52,8 +52,8 @@ class UR5RG2(model_wrapper.ModelWrapper,
 
         #self.__separate_gripper_controller = separate_gripper_controller
         if not model.to_gazebo().reset_joint_positions(
-            [0., -1.571, 0., -1.571, 0, 1.571],
-            [name for name in model.joint_names() if name not in ["rg2_finger_joint1", "rg2_finger_joint2"]]
+            [1.47838380e+00, -2.15699582e+00, -8.14691050e-05, -2.52916159e+00, 1.56735617e+00, -9.25439234e-02, 0, 0],
+            [name for name in model.joint_names()]
         ):
             raise RuntimeError("Failed to set initial robot joint positions")
 
