@@ -138,8 +138,6 @@ class UR5RG2(model_wrapper.ModelWrapper,
 
     def add_ur5_controller(self, controller_period: float
     ) -> None:
-
-        # Set the controller period # TODO set the period
         assert self.set_controller_period(period=controller_period)
 
         self.get_joint(

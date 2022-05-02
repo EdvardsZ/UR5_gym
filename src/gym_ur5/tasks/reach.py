@@ -91,12 +91,8 @@ class Reach(task.Task, abc.ABC):
         return
 
     def get_observation(self) -> Observation:
-
-        # Get the model
-       # model = self.world.get_model(self.model_name)
-
         # Create the observation
-        observation = Observation(self.random_position)
+        observation = Observation(self.ee_position)
 
         # Return the observation
         return observation
@@ -135,32 +131,7 @@ class Reach(task.Task, abc.ABC):
         # Set the joint references
         assert model.set_joint_position_targets(joint_config, joints)
         return
-        # if self.model_name not in self.world.model_names():
-        #     raise RuntimeError("Cartpole model not found in the world")
-        #
-        # # Get the model
-        # model = self.world.get_model(self.model_name)
-        #
-        # # Control the cart in force mode
-        # linear = model.get_joint("linear")
-        # ok_control_mode = linear.set_control_mode(scenario.JointControlMode_force)
-        #
-        # if not ok_control_mode:
-        #     raise RuntimeError("Failed to change the control mode of the cartpole")
-        #
-        # # Create a new cartpole state
-        # x, dx, q, dq = self.np_random.uniform(low=-0.05, high=0.05, size=(4,))
-        #
-        # # Reset the cartpole state
-        # ok_reset_pos = model.to_gazebo().reset_joint_positions(
-        #     [x, q], ["linear", "pivot"]
-        # )
-        # ok_reset_vel = model.to_gazebo().reset_joint_velocities(
-        #     [dx, dq], ["linear", "pivot"]
-        # )
-        #
-        # if not (ok_reset_pos and ok_reset_vel):
-        #     raise RuntimeError("Failed to reset the cartpole state")
+
     def get_joints(self):
         return ["shoulder_pan_joint",
          "shoulder_lift_joint",
