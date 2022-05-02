@@ -10,6 +10,7 @@ from gym_ur5 import tasks
 from gym_ur5.models import table
 #from gym_ignition_environments.models import cartpole
 from gym_ur5.models.robots import ur5_rg2
+from gym_ur5.models import redpoint
 # Tasks that are supported by this randomizer. Used for type hinting.
 SupportedTasks = Union[
     tasks.cartpole_discrete_balancing.CartPoleDiscreteBalancing,
@@ -59,15 +60,18 @@ class ReachEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer):
 
         model.add_ur5_controller(gazebo.step_size())
         if not 'table' in task.world.model_names():
-            tables = table.insert_table(world=task.world)
+            tables = table.insert(world=task.world)
         # Execute a paused run to process model removal
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")
+        if not 'RedPoint' in task.world.model_names():
+            redpoint.insert(self.world)
 
+        if not gazebo.run(paused=True):
+            raise RuntimeError("Failed to execute a paused Gazebo run")
         task.ik = model.get_ur5_ik()
         # Store the model name in the task
         task.model_name = model.name()
-
         # Execute a paused run to process model insertion
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")

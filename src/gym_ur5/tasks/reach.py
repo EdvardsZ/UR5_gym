@@ -30,7 +30,6 @@ class Reach(task.Task, abc.ABC):
         self.reset_space = None
         self.workspace_centre = np.array([0.32143738, -0.10143743, 1.36])
         self.workspace_volume = np.array([0.4, 0.4, 0.6])
-
         self._is_done = False
         return
 
