@@ -15,7 +15,7 @@ logger.set_level(gym.logger.ERROR)
 
 # Available tasks
 #env_id = "Pendulum-Gazebo-v0"
-env_id = "Idiot-v1"
+env_id = "ReachUR5-v0"
 # env_id = "CartPoleContinuousBalancing-Gazebo-v0"
 # env_id = "CartPoleContinuousSwingup-Gazebo-v0"
 
@@ -33,7 +33,8 @@ make_env = functools.partial(make_env_from_id, env_id=env_id)
 # Wrap the environment with the randomizer.
 # This is a simple example no randomization are applied.
 #envs = pendulum_no_rand.PendulumEnvNoRandomizations(envs=make_env)
-env = randomizers.cartpole_no_rand.CartpoleEnvNoRandomizations(env=make_env)
+env = randomizers.ur5_rg2_no_rand.ReachEnvNoRandomizations(env=make_env)
+#env = randomizers.cartpole_no_rand.CartpoleEnvNoRandomizations(env=make_env)
 
 # Wrap the environment with the randomizer.
 # This is a complex example that randomizes both the physics and the model.
