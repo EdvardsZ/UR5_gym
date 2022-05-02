@@ -47,7 +47,7 @@ env.render('human')
 # Initialize the seed
 env.seed(42)
 
-for epoch in range(1000):
+for epoch in range(3):
 
     # Reset the environment
     observation = env.reset()
