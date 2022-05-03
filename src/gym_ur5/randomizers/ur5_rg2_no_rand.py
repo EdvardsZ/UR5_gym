@@ -43,22 +43,26 @@ class ReachEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer):
 
         gazebo.run(paused=True)
         # Remove the model from the simulation
-        if task.model_name is not None and task.model_name in task.world.model_names():
+        #if task.model_name is not None and task.model_name in task.world.model_names():
 
-            if not task.world.to_gazebo().remove_model(task.model_name):
-                raise RuntimeError("Failed to remove the cartpole from the world")
+            #if not task.world.to_gazebo().remove_model(task.model_name):
+                #raise RuntimeError("Failed to remove the ur5-rg2 from the world")
         # Execute a paused run to process model removal
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")
 
         # Insert a new cartpole model
-        model = ur5_rg2.UR5RG2(world=task.world, position=[0.5, 0.5, 1.02])
+        if not 'ur5_rg2' in task.world.model_names():
+            model = ur5_rg2.UR5RG2(world=task.world, position=[0.5, 0.5, 1.02])
+            gazebo.run(paused=True)
+            model.add_ur5_controller(gazebo.step_size())
+            gazebo.run(paused=True)
+            task.ik = model.get_ur5_ik()
+            task.model_name = model.name()
         #model.to_gazebo().enable_self_collisions(enable=True)
         # Execute a paused run to process model removal
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")
-
-        model.add_ur5_controller(gazebo.step_size())
         if not 'table' in task.world.model_names():
             table.insert(world=task.world)
         # Execute a paused run to process model removal
@@ -69,9 +73,9 @@ class ReachEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer):
 
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")
-        task.ik = model.get_ur5_ik()
+        #task.ik = model.get_ur5_ik()
         # Store the model name in the task
-        task.model_name = model.name()
+        #task.model_name = model.name()
         # Execute a paused run to process model insertion
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")
