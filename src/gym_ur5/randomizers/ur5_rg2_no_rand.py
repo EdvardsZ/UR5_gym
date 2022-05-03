@@ -13,7 +13,6 @@ from gym_ur5.models.robots import ur5_rg2
 from gym_ur5.models import redpoint
 # Tasks that are supported by this randomizer. Used for type hinting.
 SupportedTasks = Union[
-    tasks.cartpole_discrete_balancing.CartPoleDiscreteBalancing,
     tasks.reach.Reach
 ]
 
