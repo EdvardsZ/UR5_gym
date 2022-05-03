@@ -99,11 +99,11 @@ class Reach(task.Task, abc.ABC):
         return observation
 
     def get_reward(self) -> Reward:
-
-        # Calculate the reward
-        reward = 1.0
-
-        return reward
+        reward = 0.0
+        distance = self.get_distance_to_target()
+        if distance < 0.05:
+            reward = 1.0
+        return Reward(reward)
 
     def is_done(self) -> bool:
         done = self._is_done
@@ -148,6 +148,16 @@ class Reach(task.Task, abc.ABC):
 
         return ik.get_reduced_solution().joint_configuration
 
+    def get_distance_to_target(self):
+
+        # Get current end-effector and target positions
+        ee_position = self.ee_position
+        target_position = np.array([0.32143738, -0.10143743, 1.36])
+
+        # Compute the current distance to the target
+        return np.linalg.norm([ee_position[0] - target_position[0],
+                               ee_position[1] - target_position[1],
+                               ee_position[2] - target_position[2]])
     def end_effector_reached(self,
             position: np.array,
             end_effector_link: scenario_core.Link,

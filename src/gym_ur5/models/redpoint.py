@@ -15,7 +15,7 @@ def insert(world: scenario_gazebo.World) -> scenario_gazebo.Model:
     # Assign a custom name to the model
     model_name = "RedPoint"
     # Insert the model
-    assert world.insert_model(red_point_sdf, scenario_core.Pose([0.5,0.2,2],[1.0,0,0,0]), model_name)
+    assert world.insert_model(red_point_sdf, scenario_core.Pose([0.32143738, -0.10143743, 1.10],[1.0,0,0,0]), model_name)
 
     # Return the model
     return world.get_model(model_name=model_name)

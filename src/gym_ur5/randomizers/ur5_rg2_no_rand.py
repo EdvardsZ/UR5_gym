@@ -42,6 +42,7 @@ class ReachEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer):
 
         gazebo = kwargs["gazebo"]
 
+        gazebo.run(paused=True)
         # Remove the model from the simulation
         if task.model_name is not None and task.model_name in task.world.model_names():
 
@@ -53,14 +54,14 @@ class ReachEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer):
 
         # Insert a new cartpole model
         model = ur5_rg2.UR5RG2(world=task.world, position=[0.5, 0.5, 1.02])
-
+        #model.to_gazebo().enable_self_collisions(enable=True)
         # Execute a paused run to process model removal
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")
 
         model.add_ur5_controller(gazebo.step_size())
         if not 'table' in task.world.model_names():
-            tables = table.insert(world=task.world)
+            table.insert(world=task.world)
         # Execute a paused run to process model removal
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")
