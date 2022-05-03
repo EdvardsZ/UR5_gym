@@ -30,9 +30,9 @@ env.seed(42)
 
 env = DummyVecEnv([lambda: env])
 
-log_path = os.path.join('Training', 'Logs');
-env.render("human")
+log_path = os.path.join('Training', 'Logs')
+#env.render("human")
 model = algorithm('MlpPolicy', env, verbose = 1, tensorboard_log = log_path)
-model.learn(total_timesteps = 200_000)
+model.learn(total_timesteps = 200000)
 algorithm_Path = os.path.join('Training', 'Saved Models', '+DDPGHERPendulum_swing_50k')
 model.save(algorithm_Path)
