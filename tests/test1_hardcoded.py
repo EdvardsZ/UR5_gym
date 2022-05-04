@@ -46,19 +46,15 @@ env.seed(42)
 def solveReach(observation):
     end_effector = observation[:3]
     target = observation[3:]
-    print("observation", observation)
-    print("target",target)
 
     action = target-end_effector
 
-    print("action", action)
     for i in range(3):
         action[i] = max(-1,action[i])
         action[i] = min(1,action[i])
-    print('action',action)
     return action
 
-for epoch in range(7):
+for epoch in range(9):
 
     # Reset the environment
     observation = env.reset()

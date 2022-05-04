@@ -28,9 +28,10 @@ class Reach(task.Task, abc.ABC):
         # Name of the cartpole model
         self.model_name = None
         self.ee_position = np.array([0.32143738, -0.10143743, 1.61])
-        self.workspace_centre = np.array([0.32143738, -0.10143743, 1.36])
-        self.workspace_volume = np.array([0.4, 0.4, 0.6])
-        self.red_point_position = np.array([0.32143738, -0.10143743, 1.10])
+
+        self.workspace_centre = np.array([0.50143738, 0.15, 1.36])
+        self.workspace_volume = np.array([0.4, 0.4, 0.4])
+
         self._is_done = False
         return
 
@@ -173,5 +174,4 @@ class Reach(task.Task, abc.ABC):
         low = self.workspace_centre - self.workspace_volume/2
         high = self.workspace_centre + self.workspace_volume/2
         point = np.random.uniform(low, high, size=3)
-        print(point)
         return point

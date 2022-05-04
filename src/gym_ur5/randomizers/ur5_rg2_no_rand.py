@@ -10,7 +10,8 @@ from gym_ur5 import tasks
 from gym_ur5.models import table
 #from gym_ignition_environments.models import cartpole
 from gym_ur5.models.robots import ur5_rg2
-from gym_ur5.models import redpoint
+from gym_ur5.models import redpoint, cube
+
 # Tasks that are supported by this randomizer. Used for type hinting.
 SupportedTasks = Union[
     tasks.reach.Reach
@@ -74,9 +75,19 @@ class ReachEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer):
             task.world.to_gazebo().remove_model('RedPoint')
             gazebo.run(paused=True)
             gazebo.run(paused=True)
+
+        #if not 'cube' in task.world.model_names():
+        #    position = task.workspace_centre - task.workspace_volume/2
+        #    cube.insert_cube_in_operating_area(task.world, position)
+        #    gazebo.run(paused=True)
+        #    position = task.workspace_centre + task.workspace_volume/2
+        #    cube.insert_cube_in_operating_area(task.world, position)
+        #    gazebo.run(paused=True)
+
         if not 'RedPoint' in task.world.model_names():
-            random_postion = task.get_workspace_random_position()
-            redpoint.insert(self.world,random_postion)
+            random_position = task.get_workspace_random_position()
+            redpoint.insert(self.world,random_position)
+
 
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")
