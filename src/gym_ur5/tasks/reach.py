@@ -58,15 +58,11 @@ class Reach(task.Task, abc.ABC):
 
         target_pos = self.ee_position
 
-
-        workspace_centre = np.array([ 0.32143738, -0.10143743, 1.36])
-        workspace_volume = np.array([0.4,0.4,0.6])
-
         for i in range(3):
-            target_pos[i] = min(workspace_centre[i] + workspace_volume[i]/2,
-                             max(workspace_centre[i] - workspace_volume[i]/2,
-                                 target_pos[i])
-                             )
+            target_pos[i] = min(self.workspace_centre[i] + self.workspace_volume[i]/2,
+                            max(self.workspace_centre[i] - self.workspace_volume[i]/2,
+                                target_pos[i])
+                            )
 
         self.ee_position = target_pos
 
@@ -75,21 +71,15 @@ class Reach(task.Task, abc.ABC):
             target_orientation=np.array([0, 1.0, 0, 0]),
             ik=self.ik,
         )
-        joints = ["shoulder_pan_joint",
-                "shoulder_lift_joint",
-                "elbow_joint",
-                "wrist_1_joint",
-                "wrist_2_joint",
-                "wrist_3_joint",
-                "rg2_finger_joint1",
-                "rg2_finger_joint2"]
+        joints = self.get_joints()
         assert model.set_joint_position_targets(over_joint_configuration, joints)
 
         return
 
     def get_observation(self) -> Observation:
         # Create the observation
-        observation = np.concatenate([self.ee_position, self.red_point_position])
+        target_pos = np.array(self.get_target_position())
+        observation = np.concatenate([self.ee_position, target_pos])
         # Return the observation
         return observation
 
@@ -153,10 +143,9 @@ class Reach(task.Task, abc.ABC):
         return ik.get_reduced_solution().joint_configuration
 
     def get_distance_to_target(self):
-
         # Get current end-effector and target positions
         ee_position = self.ee_position
-        target_position = np.array([0.32143738, -0.10143743, 1.36])
+        target_position = np.array(self.get_target_position())
 
         # Compute the current distance to the target
         return np.linalg.norm([ee_position[0] - target_position[0],
@@ -176,3 +165,6 @@ class Reach(task.Task, abc.ABC):
                 np.linalg.norm(masked_current - masked_target) < max_error_pos
                 and np.linalg.norm(end_effector_link.world_linear_velocity()) < max_error_vel
         )
+    def get_target_position(self):
+        position = self.world.get_model('RedPoint').base_position()
+        return position
