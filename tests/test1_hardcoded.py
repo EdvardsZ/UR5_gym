@@ -68,7 +68,7 @@ for epoch in range(9):
         action = solveReach(observation)
 
         observation, reward, done, _ = env.step(action)
-        if(False):
+        if(True):
             print('------')
             print("Observation:", observation)
             print("Reward:", reward)

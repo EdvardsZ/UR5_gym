@@ -7,7 +7,7 @@ import gym
 from gym_ur5 import randomizers
 
 env_id = "ReachUR5-v0"
-total_timesteps = 40000
+total_timesteps = 200000
 algorithm = SAC
 
 algorithm_name = algorithm.__name__
@@ -55,7 +55,7 @@ for epoch in range(10):
         env.render('human')
         # Accumulate the reward
         totalReward += reward
-    time.sleep(5)
+    time.sleep(0)
     print(f"Reward episode #{epoch}: {totalReward}")
 
 env.close()
