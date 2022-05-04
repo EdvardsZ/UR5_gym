@@ -59,6 +59,7 @@ class ReachEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer):
             gazebo.run(paused=True)
             task.ik = model.get_ur5_ik()
             task.model_name = model.name()
+
         #model.to_gazebo().enable_self_collisions(enable=True)
         # Execute a paused run to process model removal
         if not gazebo.run(paused=True):
@@ -68,8 +69,14 @@ class ReachEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer):
         # Execute a paused run to process model removal
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")
+
+        if 'RedPoint' in task.world.model_names():
+            task.world.to_gazebo().remove_model('RedPoint')
+            gazebo.run(paused=True)
+            gazebo.run(paused=True)
         if not 'RedPoint' in task.world.model_names():
-            redpoint.insert(self.world)
+            random_postion = task.get_workspace_random_position()
+            redpoint.insert(self.world,random_postion)
 
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")

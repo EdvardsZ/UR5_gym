@@ -3,7 +3,7 @@ from scenario import gazebo as scenario_gazebo
 from gym_ignition.rbd import conversions
 from scipy.spatial.transform import Rotation as R
 
-def insert(world: scenario_gazebo.World) -> scenario_gazebo.Model:
+def insert(world: scenario_gazebo.World, position) -> scenario_gazebo.Model:
 
     # Insert objects from Fuel
     uri = lambda org, name: f"https://fuel.ignitionrobotics.org/1.0/{org}/models/{name}"
@@ -15,7 +15,7 @@ def insert(world: scenario_gazebo.World) -> scenario_gazebo.Model:
     # Assign a custom name to the model
     model_name = "RedPoint"
     # Insert the model
-    assert world.insert_model(red_point_sdf, scenario_core.Pose([0.32143738, -0.10143743, 1.10],[1.0,0,0,0]), model_name)
+    assert world.insert_model(red_point_sdf, scenario_core.Pose(position,[1.0,0,0,0]), model_name)
 
     # Return the model
     return world.get_model(model_name=model_name)

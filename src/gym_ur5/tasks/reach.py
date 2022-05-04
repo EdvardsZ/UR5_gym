@@ -168,3 +168,10 @@ class Reach(task.Task, abc.ABC):
     def get_target_position(self):
         position = self.world.get_model('RedPoint').base_position()
         return position
+
+    def get_workspace_random_position(self):
+        low = self.workspace_centre - self.workspace_volume/2
+        high = self.workspace_centre + self.workspace_volume/2
+        point = np.random.uniform(low, high, size=3)
+        print(point)
+        return point
