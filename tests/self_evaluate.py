@@ -1,6 +1,8 @@
 import functools
 import time
-
+import os
+import gym
+from stable_baselines3 import PPO, DDPG
 import gym
 from gym_ignition.utils import logger
 #from gym_ignition_environments import randomizers
@@ -38,13 +40,14 @@ env = randomizers.ur5_rg2_no_rand.ReachEnvNoRandomizations(env=make_env)
 #     envs=make_env, seed=42, num_physics_rollouts=5)
 
 # Enable the rendering
-env.render()
+env.render('human')
 
 # Initialize the seed
 env.seed(42)
-
-for epoch in range(3):
-
+observation = env.reset()
+DDPG_Path = os.path.join('Training', 'Saved Models', 'DDPG_HER_50K')
+model = DDPG.load(DDPG_Path, env=env)
+for epoch in range(10):
     # Reset the environment
     observation = env.reset()
 
@@ -56,15 +59,16 @@ for epoch in range(3):
 
         # Execute a random action
         action = env.action_space.sample()
-        observation, reward, done, _ = env.step(action)
-        print('------')
-        print("Observation:", observation)
-        print("Reward:", reward)
-        print("Done:", done)
-        print("Info:", _)
-
+        print('action:', action)
+        action = model.predict(observation)
+        print('action', action)
+        print(action[0])
+        observation, reward, done, _ = env.step(action[0])
+        print(observation, reward, done, _)
+        #input('test')
+        # Render the environment.
         # It is not required to call this in the loop if physics is not randomized.
-        env.render()
+        env.render('human')
         # Accumulate the reward
         totalReward += reward
     #time.sleep(5)

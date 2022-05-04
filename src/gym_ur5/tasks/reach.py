@@ -3,12 +3,14 @@ import gym
 import numpy as np
 from gym_ignition.base import task
 from typing import Tuple
+from gym_ignition.runtimes import gazebo_runtime
 from gym_ignition.utils.typing import (
     Action,
     ActionSpace,
     Observation,
     ObservationSpace,
     Reward,
+    Dict
 )
 from gym_ignition.rbd.idyntree import inverse_kinematics_nlp
 from scipy.spatial.transform import Rotation as R
@@ -26,29 +28,23 @@ class Reach(task.Task, abc.ABC):
         # Name of the cartpole model
         self.model_name = None
         self.ee_position = np.array([0.32143738, -0.10143743, 1.61])
-        # Space for resetting the task
-        self.reset_space = None
         self.workspace_centre = np.array([0.32143738, -0.10143743, 1.36])
         self.workspace_volume = np.array([0.4, 0.4, 0.6])
+        self.red_point_position = np.array([0.32143738, -0.10143743, 1.10])
         self._is_done = False
         return
 
     def create_spaces(self) -> Tuple[ActionSpace, ObservationSpace]:
-        # Configure action space: [0, 1]
+
         action_space = gym.spaces.Box(low=-1.0,
                               high=1.0,
                               shape=(3,),
                               dtype=np.float32)
-
-
-        # Configure reset limits
-        high = self.workspace_centre + self.workspace_volume
-
-        low = self.workspace_centre - self.workspace_volume
-
-        # Configure the reset space
-        self.reset_space = gym.spaces.Box(low=low, high=high, dtype=np.float32)
-        observation_space = gym.spaces.Box(low=low * 1.2, high=high * 1.2, dtype=np.float32)
+        #These could be restricted
+        observation_space = gym.spaces.Box(low=-np.inf,
+                              high=np.inf,
+                              shape=(6,),
+                              dtype=np.float32)
 
         return action_space, observation_space
     def set_action(self, action: Action) -> None:
@@ -93,8 +89,7 @@ class Reach(task.Task, abc.ABC):
 
     def get_observation(self) -> Observation:
         # Create the observation
-        observation = Observation(self.ee_position)
-
+        observation = np.concatenate([self.ee_position, self.red_point_position])
         # Return the observation
         return observation
 
@@ -103,8 +98,17 @@ class Reach(task.Task, abc.ABC):
         distance = self.get_distance_to_target()
         if distance < 0.05:
             reward = 1.0
+        else:
+            reward = -1.0
         return Reward(reward)
 
+    def get_info(self) -> Dict:
+        distance = self.get_distance_to_target()
+        success = False if distance > 0.05 else True
+        info = {
+            "is_success": success,
+        }
+        return info
     def is_done(self) -> bool:
         done = self._is_done
         return done
