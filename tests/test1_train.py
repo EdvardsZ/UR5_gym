@@ -11,7 +11,7 @@ from gym_ignition_environments import randomizers
 from gym_ur5.randomizers import ur5_rg2_no_rand
 
 algorithm = SAC
-total_timesteps = 50_000
+total_timesteps = 40_000
 print(algorithm)
 
 algorithm_name = algorithm.__name__
