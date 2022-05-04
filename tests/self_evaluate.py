@@ -7,7 +7,7 @@ import gym
 from gym_ur5 import randomizers
 
 env_id = "ReachUR5-v0"
-total_timesteps = 200000
+total_timesteps = 50000
 algorithm = SAC
 
 algorithm_name = algorithm.__name__
@@ -42,18 +42,9 @@ for epoch in range(10):
     while not done:
 
         # Execute a random action
-        action = env.action_space.sample()
-        print('action:', action)
         action = model.predict(observation)
-        print('action', action)
-        print(action[0])
         observation, reward, done, _ = env.step(action[0])
-        print(observation, reward, done, _)
-        #input('test')
-        # Render the environment.
-        # It is not required to call this in the loop if physics is not randomized.
         env.render('human')
-        # Accumulate the reward
         totalReward += reward
     time.sleep(0)
     print(f"Reward episode #{epoch}: {totalReward}")

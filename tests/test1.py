@@ -43,7 +43,7 @@ env.render()
 # Initialize the seed
 env.seed(42)
 
-for epoch in range(3):
+for epoch in range(6):
 
     # Reset the environment
     observation = env.reset()
@@ -57,11 +57,11 @@ for epoch in range(3):
         # Execute a random action
         action = env.action_space.sample()
         observation, reward, done, _ = env.step(action)
-        print('------')
-        print("Observation:", observation)
-        print("Reward:", reward)
-        print("Done:", done)
-        print("Info:", _)
+        # print('------')
+        # print("Observation:", observation)
+        # print("Reward:", reward)
+        # print("Done:", done)
+        # print("Info:", _)
 
         # It is not required to call this in the loop if physics is not randomized.
         env.render()

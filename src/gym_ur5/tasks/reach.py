@@ -27,7 +27,6 @@ class Reach(task.Task, abc.ABC):
         task.Task.__init__(self, agent_rate=agent_rate)
         # Name of the cartpole model
         self.model_name = None
-        self.ee_position = np.array([0.32143738, -0.10143743, 1.61])
 
         self.workspace_centre = np.array([0.50143738, 0.15, 1.36])
         self.workspace_volume = np.array([0.4, 0.4, 0.4])
@@ -50,14 +49,12 @@ class Reach(task.Task, abc.ABC):
         return action_space, observation_space
     def set_action(self, action: Action) -> None:
         model = self.world.get_model(self.model_name)
-        end_effector_frame = model.get_link(link_name="tool0")
 
-        if self.ee_position is None:
-            self.ee_position = np.array([0.32143738, -0.10143743, 1.61])
+        ee_position = self.get_ee_position()
 
-        self.ee_position = self.ee_position + (np.array(action) * 0.1)
+        ee_position = ee_position + (np.array(action) * 0.1)
 
-        target_pos = self.ee_position
+        target_pos = ee_position
 
         for i in range(3):
             target_pos[i] = min(self.workspace_centre[i] + self.workspace_volume[i]/2,
@@ -65,11 +62,10 @@ class Reach(task.Task, abc.ABC):
                                 target_pos[i])
                             )
 
-        self.ee_position = target_pos
+        ee_position = target_pos
 
         over_joint_configuration = self.solve_ik(
-            target_position=self.ee_position,
-            target_orientation=np.array([0, 1.0, 0, 0]),
+            target_position=ee_position,
             ik=self.ik,
         )
         joints = self.get_joints()
@@ -80,7 +76,7 @@ class Reach(task.Task, abc.ABC):
     def get_observation(self) -> Observation:
         # Create the observation
         target_pos = np.array(self.get_target_position())
-        observation = np.concatenate([self.ee_position, target_pos])
+        observation = np.concatenate([self.get_ee_position(), target_pos])
         # Return the observation
         return observation
 
@@ -106,7 +102,6 @@ class Reach(task.Task, abc.ABC):
 
     def reset_task(self) -> None:
         self._is_done = False
-        self.ee_position = np.array([0.32143738, -0.10143743, 1.61])
 
         model = self.world.get_model(self.model_name)
         joint_config = [1.47838380e+00, -2.15699582e+00, -8.14691050e-05, -2.52916159e+00, 1.56735617e+00, -9.25439234e-02, 0, 0]
@@ -127,7 +122,6 @@ class Reach(task.Task, abc.ABC):
     def solve_ik(
             self,
             target_position: np.ndarray,
-            target_orientation: np.ndarray,
             ik: inverse_kinematics_nlp.InverseKinematicsNLP,
     ) -> np.ndarray:
         quat_xyzw = R.from_euler(seq="xyz", angles=[0, 180, 0], degrees=True).as_quat()
@@ -145,7 +139,7 @@ class Reach(task.Task, abc.ABC):
 
     def get_distance_to_target(self):
         # Get current end-effector and target positions
-        ee_position = self.ee_position
+        ee_position = self.get_ee_position()
         target_position = np.array(self.get_target_position())
 
         # Compute the current distance to the target
@@ -175,3 +169,7 @@ class Reach(task.Task, abc.ABC):
         high = self.workspace_centre + self.workspace_volume/2
         point = np.random.uniform(low, high, size=3)
         return point
+
+    def get_ee_position(self):
+        model = self.world.get_model(self.model_name).to_gazebo()
+        return np.array(model.get_link('tool0').position())
