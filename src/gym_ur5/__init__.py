@@ -16,3 +16,29 @@ register(
         "real_time_factor": max_float,
     },
 )
+
+register(
+    id="ReachDictUR5-v0",
+    entry_point="gym_ignition.runtimes.gazebo_runtime:GazeboRuntime",
+    max_episode_steps=50,
+    kwargs={
+        "task_cls": tasks.reach_dict.Reach,
+        "agent_rate": 2.5,
+        "physics_rate": 100.0,
+        "real_time_factor": max_float,
+    },
+)
+
+
+
+register(
+    id="PickAndPlaceUR5-v0",
+    entry_point="gym_ignition.runtimes.gazebo_runtime:GazeboRuntime",
+    max_episode_steps=100,
+    kwargs={
+        "task_cls": tasks.pick_and_place.PickAndPlace,
+        "agent_rate": 2.5,
+        "physics_rate": 100.0,
+        "real_time_factor": max_float,
+    },
+)
