@@ -51,7 +51,7 @@ class Reach(task.Task, abc.ABC):
                     -5, 5, shape=(3,), dtype="float32"
                 ),
                 observation=spaces.Box(
-                    -5, 5, shape=(6,), dtype="float32"
+                    -5, 5, shape=(9,), dtype="float32"
                 ),
             )
         )
@@ -85,8 +85,9 @@ class Reach(task.Task, abc.ABC):
 
     def get_observation(self) -> Observation:
         # Create the observation
+        velocity = self.get_ee_velocity()
         target_pos = np.array(self.get_target_position())
-        observation = np.concatenate([self.get_ee_position(), target_pos])
+        observation = np.concatenate([self.get_ee_position(), velocity, target_pos])
         observation = {
             "observation": observation.copy(),
             "achieved_goal": self.get_ee_position(),
@@ -206,6 +207,7 @@ class Reach(task.Task, abc.ABC):
     def get_ee_position(self):
         model = self.world.get_model(self.model_name).to_gazebo()
         return np.array(model.get_link('tool0').position())
-    #def get_ee_velocity(self):
-        #model = self.world.get_model(self.model_name).to_gazebo()
-        #return np.array(model.get_link('tool0'))
+    def get_ee_velocity(self):
+
+        model = self.world.get_model(self.model_name).to_gazebo()
+        return np.array(model.get_link('tool0').world_linear_velocity())
