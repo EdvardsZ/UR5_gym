@@ -14,7 +14,9 @@ from gym_ur5.models import redpoint, cube
 
 # Tasks that are supported by this randomizer. Used for type hinting.
 SupportedTasks = Union[
-    tasks.reach.Reach
+    tasks.reach.Reach,
+    tasks.pick_and_place.PickAndPlace,
+    tasks.reach_dict.Reach
 ]
 
 

@@ -4,7 +4,7 @@ import gym
 
 from gym_ur5 import randomizers
 
-env_id = "PickAndPlaceUR5-v0"
+env_id = "ReachDictUR5-v0"
 
 
 def make_env_from_id(env_id: str, **kwargs) -> gym.Env:
@@ -32,7 +32,7 @@ for epoch in range(6):
 
         action = env.action_space.sample()
         observation, reward, done, _ = env.step(action)
-        print('observation', observation)
+        print('observation', observation['observation'])
         env.render()
         totalReward += reward
     #time.sleep(5)

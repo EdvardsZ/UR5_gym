@@ -31,7 +31,7 @@ observation = env.reset()
 
 algorithm_path = os.path.join('Training', 'Saved Models', algorithm_name+'_'+str(total_timesteps))
 model = algorithm.load(algorithm_path, env=env)
-for epoch in range(10):
+for epoch in range(15):
     # Reset the environment
     observation = env.reset()
 
