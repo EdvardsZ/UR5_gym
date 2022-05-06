@@ -7,11 +7,12 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 
 algorithm = SAC
 algorithm_name = algorithm.__name__
-total_timesteps = 6000000
+timesteps = 6000000
 
 log_path = os.path.join('Training', 'Logs');
 env = gym.make(env_name)
 env = DummyVecEnv([lambda: env])
+
 model = algorithm(
     'MultiInputPolicy',
     env,
@@ -27,7 +28,10 @@ model = algorithm(
         online_sampling = False,
     ),
 )
-model.learn(total_timesteps = total_timesteps)
-algorithm_path = os.path.join('Training', 'Saved Models', algorithm_name+'_'+str(total_timesteps))
-print("Saving model to:"+ algorithm_path)
-model.save(algorithm_path)
+counter = 0
+step = 50000
+while counter < timesteps:
+    counter += step
+    model.learn(total_timesteps=step, reset_num_timesteps=False)
+    algorithm_path = os.path.join('Training', 'Saved Models', algorithm_name+'_FetchPickAndPlaceMujoco_'+str(counter))
+    model.save(algorithm_path)
