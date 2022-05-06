@@ -35,6 +35,13 @@ model = algorithm(
     env,
     verbose = 1,
     tensorboard_log = log_path,
+    replay_buffer_class = HerReplayBuffer,
+    # Parameters for HER
+    replay_buffer_kwargs=dict(
+        n_sampled_goal = 4,
+        goal_selection_strategy = GoalSelectionStrategy.FUTURE,
+        online_sampling = False,
+    ),
 )
 model.learn(total_timesteps = total_timesteps)
 algorithm_path = os.path.join('Training', 'Saved Models', algorithm_name+'_'+str(total_timesteps) + env_id)

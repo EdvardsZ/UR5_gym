@@ -105,14 +105,15 @@ class Reach(task.Task, abc.ABC):
             reward = -1.0
         return Reward(reward)
 
+    def goal_distance(self,goal_a, goal_b):
+        assert goal_a.shape == goal_b.shape
+        return np.linalg.norm(goal_a - goal_b, axis=-1)
+
     def compute_reward(self, achieved_goal, desired_goal, info):
-        reward = 0.0
-        distance = self.get_distance(achieved_goal, desired_goal)
-        if distance < 0.05:
-            reward = 1.0
-        else:
-            reward = -1.0
-        return Reward(reward)
+        d = self.goal_distance(achieved_goal, desired_goal)
+        result = -(d > 0.05).astype(np.float32)
+        result = np.where( result == 0.0, 1.0, -1.0)
+        return result
 
     def get_distance(self, position, goal):
         # Get current end-effector and target positions
