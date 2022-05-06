@@ -14,7 +14,7 @@ def make_env_from_id(env_id: str, **kwargs) -> gym.Env:
 
 make_env = functools.partial(make_env_from_id, env_id=env_id)
 
-env = randomizers.ur5_rg2_no_rand.ReachEnvNoRandomizations(env=make_env)
+env = randomizers.ur5_rg2_pick_and_place_no_rand.PickAndPLaceEnvNoRandomizations(env=make_env)
 
 env.render()
 
