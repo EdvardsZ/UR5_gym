@@ -73,6 +73,16 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
             gazebo.run(paused=True)
             gazebo.run(paused=True)
 
+        if 'cube' in task.world.model_names():
+            task.world.to_gazebo().remove_model('cube')
+            gazebo.run(paused=True)
+            gazebo.run(paused=True)
+
+        if not 'cube' in task.world.model_names():
+            random_position = task.get_workspace_random_position()
+            random_position[2] = 1.02
+            cube.insert(self.world, random_position)
+            gazebo.run(paused=True)
         #if not 'cube' in task.world.model_names():
         #    position = task.workspace_centre - task.workspace_volume/2
         #    cube.insert_cube_in_operating_area(task.world, position)

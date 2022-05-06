@@ -4,7 +4,7 @@ import numpy as np
 import gym_ignition
 from gym_ignition.rbd import conversions
 from scipy.spatial.transform import Rotation as R
-def insert_cube_in_operating_area(
+def insert(
         world: scenario_gazebo.World, position
 ) -> scenario_gazebo.Model:
 
