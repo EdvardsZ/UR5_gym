@@ -14,7 +14,6 @@ model = SAC(
     verbose = 1,
     tensorboard_log = log_path,
     gamma= 0.95,
-    cr
     learning_starts= 100000,
     replay_buffer_class = HerReplayBuffer,
     # Parameters for HER
