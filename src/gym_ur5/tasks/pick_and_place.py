@@ -12,6 +12,7 @@ from gym_ignition.utils.typing import (
     Reward,
     Dict
 )
+import gym
 from gym import error, spaces
 from gym_ignition.rbd.idyntree import inverse_kinematics_nlp
 from scipy.spatial.transform import Rotation as R
@@ -22,7 +23,7 @@ import time
 from scenario import core as scenario_core
 class PickAndPlace(task.Task, abc.ABC):
     def __init__(
-            self, agent_rate: float, **kwargs
+            self, agent_rate: float, reward_cart_at_center: bool = True, **kwargs
     ) -> None:
         # Initialize the Task base class
         task.Task.__init__(self, agent_rate=agent_rate)
@@ -41,18 +42,16 @@ class PickAndPlace(task.Task, abc.ABC):
                               high=1.0,
                               shape=(3,),
                               dtype=np.float32)
-        #These could be restricted
-        #obs = self.get_observation()
         observation_space = spaces.Dict(
             dict(
                 desired_goal=spaces.Box(
-                    -np.inf, np.inf, shape=[3,1], dtype="float32"
+                    -5, 5, shape=(3,), dtype="float32"
                 ),
                 achieved_goal=spaces.Box(
-                    -np.inf, np.inf, shape=[3,1], dtype="float32"
+                    -5, 5, shape=(3,), dtype="float32"
                 ),
                 observation=spaces.Box(
-                    -np.inf, np.inf, shape=[3,1], dtype="float32"
+                    -5, 5, shape=(9,), dtype="float32"
                 ),
             )
         )
@@ -86,11 +85,16 @@ class PickAndPlace(task.Task, abc.ABC):
 
     def get_observation(self) -> Observation:
         # Create the observation
-
+        velocity = self.get_ee_velocity()
         target_pos = np.array(self.get_target_position())
-        observation = np.concatenate([self.get_ee_position(), target_pos])
+        observation = np.concatenate([self.get_ee_position(), velocity, target_pos])
+        observation = {
+            "observation": observation.copy(),
+            "achieved_goal": self.get_ee_position(),
+            "desired_goal": target_pos,
+        }
         # Return the observation
-        return observation
+        return Observation(observation)
 
     def get_reward(self) -> Reward:
         reward = 0.0
@@ -100,6 +104,26 @@ class PickAndPlace(task.Task, abc.ABC):
         else:
             reward = -1.0
         return Reward(reward)
+
+    def goal_distance(self,goal_a, goal_b):
+        assert goal_a.shape == goal_b.shape
+        return np.linalg.norm(goal_a - goal_b, axis=-1)
+
+    def compute_reward(self, achieved_goal, desired_goal, info):
+        d = self.goal_distance(achieved_goal, desired_goal)
+        result = -(d > 0.05).astype(np.float32)
+        result = np.where( result == 0.0, 1.0, -1.0)
+        return result
+
+    def get_distance(self, position, goal):
+        # Get current end-effector and target positions
+        ee_position = position
+        target_position = goal
+
+        # Compute the current distance to the target
+        return np.linalg.norm([ee_position[0] - target_position[0],
+                               ee_position[1] - target_position[1],
+                               ee_position[2] - target_position[2]])
 
     def get_info(self) -> Dict:
         distance = self.get_distance_to_target()
@@ -173,8 +197,7 @@ class PickAndPlace(task.Task, abc.ABC):
                 and np.linalg.norm(end_effector_link.world_linear_velocity()) < max_error_vel
         )
     def get_target_position(self):
-        position = self.world.get_model('RedPoint').base_position()
-        return position
+        return self.world.get_model('RedPoint').base_position()
 
     def get_workspace_random_position(self):
         low = self.workspace_centre - self.workspace_volume/2
@@ -185,3 +208,7 @@ class PickAndPlace(task.Task, abc.ABC):
     def get_ee_position(self):
         model = self.world.get_model(self.model_name).to_gazebo()
         return np.array(model.get_link('tool0').position())
+    def get_ee_velocity(self):
+
+        model = self.world.get_model(self.model_name).to_gazebo()
+        return np.array(model.get_link('tool0').world_linear_velocity())
