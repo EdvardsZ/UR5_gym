@@ -19,7 +19,7 @@ model = algorithm(
     verbose = 1,
     tensorboard_log = log_path,
     gamma= 0.95,
-    learning_starts= 100000,
+    learning_starts= 10000,
     replay_buffer_class = HerReplayBuffer,
     # Parameters for HER
     replay_buffer_kwargs=dict(
