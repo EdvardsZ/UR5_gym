@@ -5,16 +5,19 @@ from stable_baselines3 import HerReplayBuffer, DDPG, DQN, SAC, TD3
 from stable_baselines3.her.goal_selection_strategy import GoalSelectionStrategy
 from stable_baselines3.common.vec_env import DummyVecEnv
 
+algorithm = SAC
+algorithm_name = algorithm.__name__
+total_timesteps = 6000000
+
 log_path = os.path.join('Training', 'Logs');
 env = gym.make(env_name)
 env = DummyVecEnv([lambda: env])
-model = SAC(
+model = algorithm(
     'MultiInputPolicy',
     env,
     verbose = 1,
     tensorboard_log = log_path,
     gamma= 0.95,
-    cr
     learning_starts= 100000,
     replay_buffer_class = HerReplayBuffer,
     # Parameters for HER
@@ -24,4 +27,7 @@ model = SAC(
         online_sampling = False,
     ),
 )
-model.learn(total_timesteps = 4000000)
+model.learn(total_timesteps = total_timesteps)
+algorithm_path = os.path.join('Training', 'Saved Models', algorithm_name+'_'+str(total_timesteps))
+print("Saving model to:"+ algorithm_path)
+model.save(algorithm_path)
