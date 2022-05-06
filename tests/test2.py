@@ -21,7 +21,7 @@ env.render()
 # Initialize the seed
 env.seed(42)
 
-for epoch in range(15):
+for epoch in range(6):
 
     observation = env.reset()
 

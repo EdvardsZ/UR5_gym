@@ -37,7 +37,7 @@ class PickAndPlace(task.Task, abc.ABC):
         task.Task.__init__(self, agent_rate=agent_rate)
         # Name of the cartpole model
         self.model_name = None
-
+        self.finger_state = None # 0 for open 1 closed
         self.workspace_centre = np.array([0.50143738, 0.15, 1.36])
         self.workspace_volume = np.array([0.4, 0.4, 0.4])
 
@@ -87,6 +87,7 @@ class PickAndPlace(task.Task, abc.ABC):
         )
         joints = self.get_joints()
         assert model.set_joint_position_targets(over_joint_configuration, joints)
+        self.move_fingers()
 
         return
 
@@ -236,3 +237,21 @@ class PickAndPlace(task.Task, abc.ABC):
 
         model = self.world.get_model(self.model_name).to_gazebo()
         return np.array(model.get_link('tool0').world_linear_velocity())
+
+    def move_fingers(self, action=0
+    ) -> None:
+        model = self.world.get_model(self.model_name).to_gazebo()
+
+        # Get the joints of the fingers
+        finger1 = model.get_joint(joint_name="rg2_finger_joint1")
+        finger2 = model.get_joint(joint_name="rg2_finger_joint2")
+
+        if action == 0:
+            print("finger1.position_limit().max: ", finger1.position_limit().max)
+            finger1.set_position_target(position=finger1.position_limit().max)
+            finger2.set_position_target(position=finger2.position_limit().max)
+
+        if action == 1:
+            print("finger1.position_limit().min: ", finger1.position_limit().min)
+            finger1.set_position_target(position=finger1.position_limit().min)
+            finger2.set_position_target(position=finger2.position_limit().min)
