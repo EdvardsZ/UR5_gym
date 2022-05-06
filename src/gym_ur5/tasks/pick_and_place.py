@@ -21,6 +21,14 @@ from gym_ur5.models.robots import ur5_rg2
 import random
 import time
 from scenario import core as scenario_core
+import enum
+from functools import partial
+
+class FingersAction(enum.Enum):
+
+    OPEN = enum.auto()
+    CLOSE = enum.auto()
+
 class PickAndPlace(task.Task, abc.ABC):
     def __init__(
             self, agent_rate: float, reward_cart_at_center: bool = True, **kwargs
@@ -51,7 +59,7 @@ class PickAndPlace(task.Task, abc.ABC):
                     -5, 5, shape=(3,), dtype="float32"
                 ),
                 observation=spaces.Box(
-                    -5, 5, shape=(9,), dtype="float32"
+                    -5, 5, shape=(15,), dtype="float32"
                 ),
             )
         )
@@ -59,7 +67,6 @@ class PickAndPlace(task.Task, abc.ABC):
         return action_space, observation_space
     def set_action(self, action: Action) -> None:
         model = self.world.get_model(self.model_name)
-
         ee_position = self.get_ee_position()
 
         ee_position = ee_position + (np.array(action) * 0.1)
@@ -86,11 +93,27 @@ class PickAndPlace(task.Task, abc.ABC):
     def get_observation(self) -> Observation:
         # Create the observation
         velocity = self.get_ee_velocity()
-        target_pos = np.array(self.get_target_position())
-        observation = np.concatenate([self.get_ee_position(), velocity, target_pos])
+        target_pos = self.get_target_position()
+        cube_pos = self.get_cube_position()
+        cube_relative_to_gripper = cube_pos - self.get_ee_position()
+        # print("EE pos:", self.get_ee_position())
+        # print("Cube position:", cube_pos)
+        # print("Cube relative", cube_relative_to_gripper)
+        # print("Distance ")
+        # distance between fingers to dooooo
+        # angle of the object to doooo
+        # object velocity
+        # angular velocity of object
+        # ---- griper velocity
+        # left finger relative motion to the gripper?
+
+        observation = np.concatenate([self.get_ee_position(), cube_pos, cube_relative_to_gripper, velocity, target_pos])
+        # print(observation)
+        # print(observation.size)
+        #input("Test")
         observation = {
             "observation": observation.copy(),
-            "achieved_goal": self.get_ee_position(),
+            "achieved_goal": self.get_cube_position(),
             "desired_goal": target_pos,
         }
         # Return the observation
@@ -197,8 +220,9 @@ class PickAndPlace(task.Task, abc.ABC):
                 and np.linalg.norm(end_effector_link.world_linear_velocity()) < max_error_vel
         )
     def get_target_position(self):
-        return self.world.get_model('RedPoint').base_position()
-
+        return np.array(self.world.get_model('RedPoint').base_position())
+    def get_cube_position(self):
+        return np.array(self.world.get_model('cube').base_position())
     def get_workspace_random_position(self):
         low = self.workspace_centre - self.workspace_volume/2
         high = self.workspace_centre + self.workspace_volume/2
