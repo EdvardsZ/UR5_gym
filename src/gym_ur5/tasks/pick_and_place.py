@@ -38,7 +38,7 @@ class PickAndPlace(task.Task, abc.ABC):
         # Name of the cartpole model
         self.model_name = None
         self.finger_state = None # 0 for open 1 closed
-        self.workspace_centre = np.array([0.50143738, 0.15, 1.29])
+        self.workspace_centre = np.array([0.50143738, 0.05, 1.29])
         self.workspace_volume = np.array([0.4, 0.4, 0.5])
 
         self._is_done = False
@@ -59,7 +59,7 @@ class PickAndPlace(task.Task, abc.ABC):
                     -5, 5, shape=(3,), dtype="float32"
                 ),
                 observation=spaces.Box(
-                    -5, 5, shape=(29,), dtype="float32"
+                    -5, 5, shape=(31,), dtype="float32"
                 ),
             )
         )
@@ -101,6 +101,7 @@ class PickAndPlace(task.Task, abc.ABC):
         cube_angle = self.get_cube_angle()
         cube_angular_velocity = self.get_cube_angular_velocity()
         cube_velocity = self.get_cube_velocity()
+        contact = self.get_contact_wrench()
         #print("EE pos:", self.get_ee_position())
         #print("Cube position:", cube_pos)
         #print("Cube relative", cube_relative_to_gripper)
@@ -111,7 +112,7 @@ class PickAndPlace(task.Task, abc.ABC):
         # print("Cube velocity", cube_velocity)
         # left finger relative motion to the gripper?
 
-        observation = np.concatenate([self.get_ee_position(), cube_pos, cube_relative_to_gripper, gripper_angles, gripper_velocity, cube_angle, cube_angular_velocity, cube_velocity, velocity, target_pos])
+        observation = np.concatenate([self.get_ee_position(), cube_pos, cube_relative_to_gripper, gripper_angles, gripper_velocity, cube_angle, cube_angular_velocity, cube_velocity, contact, velocity, target_pos])
         #print(observation)
         #print(observation.size)
         #input("Test")
@@ -264,6 +265,12 @@ class PickAndPlace(task.Task, abc.ABC):
     def get_cube_velocity(self):
         model = self.world.get_model('cube').to_gazebo()
         return np.array(model.base_body_linear_velocity())
+
+    def get_contact_wrench(self):
+        model = self.world.get_model(self.model_name).to_gazebo()
+        finger_left = model.get_link(link_name="rg2_leftfinger")
+        finger_right = model.get_link(link_name="rg2_rightfinger")
+        return np.array([np.linalg.norm(finger_left.contact_wrench()), np.linalg.norm(finger_right.contact_wrench())])
     def move_fingers(self, action=0.0
     ) -> None:
         action = (action + 1.0) / 2
@@ -275,3 +282,5 @@ class PickAndPlace(task.Task, abc.ABC):
         position = action * 1.18
         finger1.set_position_target(position=position)
         finger2.set_position_target(position=position)
+
+
