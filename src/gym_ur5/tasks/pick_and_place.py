@@ -266,6 +266,7 @@ class PickAndPlace(task.Task, abc.ABC):
         return np.array(model.base_body_linear_velocity())
     def move_fingers(self, action=0.0
     ) -> None:
+        action = (action + 1.0) / 2
         model = self.world.get_model(self.model_name).to_gazebo()
         # Get the joints of the fingers
         finger1 = model.get_joint(joint_name="rg2_finger_joint1")
