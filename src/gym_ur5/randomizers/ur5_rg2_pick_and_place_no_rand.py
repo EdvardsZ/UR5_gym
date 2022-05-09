@@ -49,7 +49,7 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
         #if task.model_name is not None and task.model_name in task.world.model_names():
 
             #if not task.world.to_gazebo().remove_model(task.model_name):
-                #raise RuntimeError("Failed to remove the ur5-rg2 from the world")
+            # #   raise RuntimeError("Failed to remove the ur5-rg2 from the world")
         # Execute a paused run to process model removal
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")
@@ -89,6 +89,7 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
 
         if not 'cube' in task.world.model_names():
             random_position = task.get_workspace_random_position()
+            #random_position = [0.52555575, 0.20615784, 1.02]
             random_position[2] = 1.02
             cube.insert(self.world, random_position)
             gazebo.run(paused=True)
@@ -102,6 +103,8 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
 
         if not 'RedPoint' in task.world.model_names():
             random_position = task.get_workspace_random_position()
+            #random_position = [0.30143738, -0.05, 1.04]
+            #print(random_position)
             redpoint.insert(self.world,random_position)
 
 

@@ -32,7 +32,7 @@ for epoch in range(6):
 
         action = env.action_space.sample()
         observation, reward, done, _ = env.step(action)
-        print('observation', observation)
+        #print('observation', observation)
         env.render()
         totalReward += reward
     #time.sleep(5)

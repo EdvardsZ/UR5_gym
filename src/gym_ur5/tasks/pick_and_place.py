@@ -38,8 +38,8 @@ class PickAndPlace(task.Task, abc.ABC):
         # Name of the cartpole model
         self.model_name = None
         self.finger_state = None # 0 for open 1 closed
-        self.workspace_centre = np.array([0.50143738, 0.15, 1.36])
-        self.workspace_volume = np.array([0.4, 0.4, 0.4])
+        self.workspace_centre = np.array([0.50143738, 0.15, 1.29])
+        self.workspace_volume = np.array([0.4, 0.4, 0.5])
 
         self._is_done = False
         return
@@ -48,7 +48,7 @@ class PickAndPlace(task.Task, abc.ABC):
 
         action_space = gym.spaces.Box(low=-1.0,
                               high=1.0,
-                              shape=(3,),
+                              shape=(4,),
                               dtype=np.float32)
         observation_space = spaces.Dict(
             dict(
@@ -59,7 +59,7 @@ class PickAndPlace(task.Task, abc.ABC):
                     -5, 5, shape=(3,), dtype="float32"
                 ),
                 observation=spaces.Box(
-                    -5, 5, shape=(15,), dtype="float32"
+                    -5, 5, shape=(29,), dtype="float32"
                 ),
             )
         )
@@ -68,8 +68,7 @@ class PickAndPlace(task.Task, abc.ABC):
     def set_action(self, action: Action) -> None:
         model = self.world.get_model(self.model_name)
         ee_position = self.get_ee_position()
-
-        ee_position = ee_position + (np.array(action) * 0.1)
+        ee_position = ee_position + (np.array(action[:3]) * 0.1)
 
         target_pos = ee_position
 
@@ -87,7 +86,7 @@ class PickAndPlace(task.Task, abc.ABC):
         )
         joints = self.get_joints()
         assert model.set_joint_position_targets(over_joint_configuration, joints)
-        self.move_fingers(0.5)
+        self.move_fingers(action[3])
 
         return
 
@@ -97,18 +96,22 @@ class PickAndPlace(task.Task, abc.ABC):
         target_pos = self.get_target_position()
         cube_pos = self.get_cube_position()
         cube_relative_to_gripper = cube_pos - self.get_ee_position()
+        gripper_angles = self.get_fingers_angles()
+        gripper_velocity = self.get_fingers_angular_velocity()
+        cube_angle = self.get_cube_angle()
+        cube_angular_velocity = self.get_cube_angular_velocity()
+        cube_velocity = self.get_cube_velocity()
         #print("EE pos:", self.get_ee_position())
         #print("Cube position:", cube_pos)
         #print("Cube relative", cube_relative_to_gripper)
-        #print("")
-        # distance between fingers to dooooo -- i will substitute it with the angle of grippers
-        # angle of the object to doooo
-        # object velocity
-        # angular velocity of object
-        # ---- griper velocity
+        # print("Gripper Angles", gripper_angles)
+        # print("Gripper Velocity",  gripper_velocity)
+        # print("Cube angle", cube_angle)
+        # print("Cube angular velocity", cube_angular_velocity)
+        # print("Cube velocity", cube_velocity)
         # left finger relative motion to the gripper?
 
-        observation = np.concatenate([self.get_ee_position(), cube_pos, cube_relative_to_gripper, velocity, target_pos])
+        observation = np.concatenate([self.get_ee_position(), cube_pos, cube_relative_to_gripper, gripper_angles, gripper_velocity, cube_angle, cube_angular_velocity, cube_velocity, velocity, target_pos])
         #print(observation)
         #print(observation.size)
         #input("Test")
@@ -234,23 +237,33 @@ class PickAndPlace(task.Task, abc.ABC):
         model = self.world.get_model(self.model_name).to_gazebo()
         return np.array(model.get_link('tool0').position())
     def get_ee_velocity(self):
-
         model = self.world.get_model(self.model_name).to_gazebo()
         return np.array(model.get_link('tool0').world_linear_velocity())
 
     def get_fingers_angles(self):
         model = self.world.get_model(self.model_name).to_gazebo()
-        return
-    def get_fingers_velocity(self):
-        return
+        finger1 = model.get_joint(joint_name="rg2_finger_joint1")
+        finger2 = model.get_joint(joint_name="rg2_finger_joint2")
+        return np.array([finger1.position(), finger2.position()])
     def get_fingers_angular_velocity(self):
-        return
+        model = self.world.get_model(self.model_name).to_gazebo()
+        finger1 = model.get_joint(joint_name="rg2_finger_joint1")
+        finger2 = model.get_joint(joint_name="rg2_finger_joint2")
+        return np.array([finger1.velocity(), finger2.velocity()])
+    #def get_fingers_velocity(self): # Maybe create this function if needed
+        #model = self.world.get_model(self.model_name).to_gazebo()
+        #finger1 = model.get_link("rg2_finger_joint1")
+        #finger2 = model.get_link("rg2_finger_joint2")
+        #return
     def get_cube_angle(self):
-        return
+        model = self.world.get_model('cube').to_gazebo()
+        return np.array(model.base_orientation())
     def get_cube_angular_velocity(self):
-        return
+        model = self.world.get_model('cube').to_gazebo()
+        return np.array(model.base_body_angular_velocity())
     def get_cube_velocity(self):
-        return
+        model = self.world.get_model('cube').to_gazebo()
+        return np.array(model.base_body_linear_velocity())
     def move_fingers(self, action=0.0
     ) -> None:
         model = self.world.get_model(self.model_name).to_gazebo()
