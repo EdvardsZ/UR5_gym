@@ -7,6 +7,7 @@ from gym_ur5.models import table
 from gym_ur5.models.robots import ur5_rg2
 from gym_ur5.models import redpoint, cube
 from functools import partial
+import numpy as np
 import enum
 # Tasks that are supported by this randomizer. Used for type hinting.
 SupportedTasks = Union[
@@ -89,16 +90,22 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
 
         if not 'cube' in task.world.model_names():
             random_position = task.get_workspace_random_position()
+            xy = random_position[:2]
+            ee_pos = task.get_ee_position()[:2]
+            #print("get_ee_position", ee_pos)
+            while np.linalg.norm(xy - ee_pos) < 0.1:
+                xy = task.get_workspace_random_position()[:2]
+                #print("getting_random", xy, ee_pos)
             #random_position = [0.52555575, 0.20615784, 1.02]
             random_position[2] = 1.02
             cube.insert(self.world, random_position)
             gazebo.run(paused=True)
-        #if not 'cube' in task.world.model_names():
+        # if not 'cube' in task.world.model_names():
         #    position = task.workspace_centre - task.workspace_volume/2
-        #    cube.insert_cube_in_operating_area(task.world, position)
+        #    cube.insert(task.world, position)
         #    gazebo.run(paused=True)
         #    position = task.workspace_centre + task.workspace_volume/2
-        #    cube.insert_cube_in_operating_area(task.world, position)
+        #    cube.insert(task.world, position)
         #    gazebo.run(paused=True)
 
         if not 'RedPoint' in task.world.model_names():
