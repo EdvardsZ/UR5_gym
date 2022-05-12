@@ -203,7 +203,7 @@ class PickAndPlace(task.Task, abc.ABC):
 
     def get_distance_to_target(self):
         # Get current end-effector and target positions
-        ee_position = self.get_ee_position()
+        ee_position = self.get_cube_position() # changed this to cube position for this environmnet
         target_position = np.array(self.get_target_position())
 
         # Compute the current distance to the target
