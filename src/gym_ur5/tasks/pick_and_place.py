@@ -38,7 +38,7 @@ class PickAndPlace(task.Task, abc.ABC):
         # Name of the cartpole model
         self.model_name = None
         self.finger_state = None # 0 for open 1 closed
-        self.workspace_centre = np.array([0.50143738, 0.05, 1.29])
+        self.workspace_centre = np.array([0.50143738, 0.05, 1.27])
         self.workspace_volume = np.array([0.4, 0.4, 0.5])
 
         self._is_done = False

@@ -93,7 +93,7 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
             xy = random_position[:2]
             ee_pos = task.get_ee_position()[:2]
             #print("get_ee_position", ee_pos)
-            while np.linalg.norm(xy - ee_pos) < 0.1:
+            while np.linalg.norm(xy - ee_pos) < 0.15:
                 xy = task.get_workspace_random_position()[:2]
                 #print("getting_random", xy, ee_pos)
             #random_position = [0.52555575, 0.20615784, 1.02]
@@ -109,8 +109,8 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
         #    gazebo.run(paused=True)
 
         if not 'RedPoint' in task.world.model_names():
-            #random_position = task.get_workspace_random_position()
-            random_position = [0.30143738, -0.05, 1.34]
+            random_position = task.get_workspace_random_position()
+            #random_position = [0.30143738, -0.05, 1.34]
             #print(random_position)
             redpoint.insert(self.world,random_position)
 
