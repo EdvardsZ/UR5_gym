@@ -16,10 +16,6 @@ SupportedTasks = Union[
     tasks.reach_dict.Reach
 ]
 
-class FingersAction(enum.Enum):
-
-    OPEN = enum.auto()
-    CLOSE = enum.auto()
 
 class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer):
     """
@@ -63,9 +59,9 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
             gazebo.run(paused=True)
             task.ik = model.get_ur5_ik()
             task.model_name = model.name()
-            #model.to_gazebo().enable_self_collisions(enable=True)
-            #model.to_gazebo().get_link("rg2_leftfinger").to_gazebo().enable_contact_detection(True)
-            #model.to_gazebo().get_link("rg2_rightfinger").to_gazebo().enable_contact_detection(True)
+            # model.to_gazebo().enable_self_collisions(enable=True)
+            model.to_gazebo().get_link("rg2_leftfinger").to_gazebo().enable_contact_detection(True)
+            model.to_gazebo().get_link("rg2_rightfinger").to_gazebo().enable_contact_detection(True)
             gazebo.run(paused=True)
             #model.open_fingers = partial(move_fingers, _ur5_with_rg2=model, action=FingersAction.OPEN)
             #model.close_fingers = partial(move_fingers, _ur5_with_rg2=model, action=FingersAction.CLOSE)
@@ -124,20 +120,4 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
         if not gazebo.run(paused=True):
             raise RuntimeError("Failed to execute a paused Gazebo run")
 
-def move_fingers(
-        _ur5_with_rg2: ur5_rg2.UR5RG2, action: FingersAction
-) -> None:
 
-    # Get the joints of the fingers
-    finger1 = _ur5_with_rg2.get_joint(joint_name="rg2_finger_joint1")
-    finger2 = _ur5_with_rg2.get_joint(joint_name="rg2_finger_joint2")
-
-    if action is FingersAction.OPEN:
-        print("finger1.position_limit().max: ", finger1.position_limit().max)
-        finger1.set_position_target(position=finger1.position_limit().max)
-        finger2.set_position_target(position=finger2.position_limit().max)
-
-    if action is FingersAction.CLOSE:
-        print("finger1.position_limit().min: ", finger1.position_limit().min)
-        finger1.set_position_target(position=finger1.position_limit().min)
-        finger2.set_position_target(position=finger2.position_limit().min)
