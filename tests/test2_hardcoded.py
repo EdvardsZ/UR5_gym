@@ -20,8 +20,9 @@ env.render()
 
 # Initialize the seed
 env.seed(42)
-
+c = 0
 def solveReach(observation):
+    global c
     end_effector = observation["observation"][:3]
     target = observation["achieved_goal"][:3]
 
@@ -37,6 +38,10 @@ def solveReach(observation):
     action = np.append(action, [0.0])
 
     if np.linalg.norm(action) < 0.05:
+        if c == 1:
+            action[2] = 1.0
+        if c == 0:
+            c = 1
         action[3] = -1.0
 
     return action
