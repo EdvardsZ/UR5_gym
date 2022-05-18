@@ -188,7 +188,7 @@ class PickAndPlace(task.Task, abc.ABC):
             target_position: np.ndarray,
             ik: inverse_kinematics_nlp.InverseKinematicsNLP,
     ) -> np.ndarray:
-        quat_xyzw = R.from_euler(seq="xyz", angles=[0, 180, 0], degrees=True).as_quat()
+        quat_xyzw = R.from_euler(seq="xyz", angles=[0, 180, 90], degrees=True).as_quat()
 
         ik.update_transform_target(
             target_name=ik.get_active_target_names()[0],
@@ -227,6 +227,7 @@ class PickAndPlace(task.Task, abc.ABC):
     def get_target_position(self):
         return np.array(self.world.get_model('RedPoint').base_position())
     def get_cube_position(self):
+        #print(np.array(self.world.get_model('cube').base_position()))
         return np.array(self.world.get_model('cube').base_position())
     def get_workspace_random_position(self):
         low = self.workspace_centre - self.workspace_volume/2
