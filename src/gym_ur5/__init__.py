@@ -38,7 +38,7 @@ register(
     kwargs={
         "task_cls": tasks.pick_and_place.PickAndPlace,
         "agent_rate": 2.5,
-        "physics_rate": 100.0,
-        "real_time_factor": max_float,
+        "physics_rate": 250.0,
+        "real_time_factor": 10.0,
     },
 )
