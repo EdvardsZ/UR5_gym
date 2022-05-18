@@ -33,12 +33,12 @@ class UR5RG2(model_wrapper.ModelWrapper,
 
         # Get the default model description (URDF or SDF) allowing to pass a custom model
         if model_file is None:
-            model_file = self.get_model_file(False)
+            model_file = self.get_model_file(True)
 
-       # if not arm_collision or not hand_collision:
-       #     model_file = self.disable_collision(model_file=model_file,
-       #                                         arm_collision=arm_collision,
-        #                                        hand_collision=hand_collision)
+
+        model_file = self.disable_collision(model_file=model_file,
+                                               arm_collision=False,
+                                                hand_collision=True)
 
         # Insert the model
         ok_model = world.to_gazebo().insert_model(model_file,
@@ -86,8 +86,7 @@ class UR5RG2(model_wrapper.ModelWrapper,
     @classmethod
     def get_model_file(self, fuel=False) -> str:
         if fuel:
-            return scenario_gazebo.get_model_file_from_fuel(
-                "https://fuel.ignitionrobotics.org/1.0/AndrejOrsula/models/ur5_rg2")
+            return "ur5_rg2/ur5_rg2.sdf"
         else:
             return "ur5_rg2/ur5_rg2.urdf"
 
@@ -222,3 +221,50 @@ class UR5RG2(model_wrapper.ModelWrapper,
         self.ik = ik
 
         return ik
+
+    @classmethod
+    def disable_collision(self,
+                          model_file: str,
+                          arm_collision: bool,
+                          hand_collision: bool) -> str:
+
+        new_model_file = path.join(path.dirname(model_file),
+                                   'model_without_arm_collision.sdf')
+
+        # Remove collision geometry
+        with open(model_file, "r") as original_sdf_file:
+            with open(new_model_file, "w") as new_sdf_file:
+                while True:
+                    # Read a new line and make sure it is not the end of the file
+                    line = original_sdf_file.readline()
+                    if not line.rstrip():
+                        break
+
+                    # Once `<collision>` for lower links is encountered, skip that and all lines until `</collision>` is reached
+                    if not arm_collision:
+                        if ('<collision name="base_link_collision"' in line or
+                            '<collision name="shoulder_link_collision"' in line or
+                            '<collision name="upper_arm_link_collision"' in line or
+                            '<collision name="forearm_link_collision"' in line or
+                            '<collision name="wrist_1_link_collision"' in line or
+                                '<collision name="wrist_2_link_collision"' in line):
+                            line = original_sdf_file.readline()
+                            while not '</collision>' in line:
+                                line = original_sdf_file.readline()
+                            continue
+
+                    # Same as for arm, but check for hand and both fingers
+                    if not hand_collision:
+                        if ('<collision name="rg2_hand_collision"' in line or
+                            '<collision name="rg2_leftfinger_collision"' in line or
+                                '<collision name="rg2_rightfinger_collision"' in line):
+                            line = original_sdf_file.readline()
+                            while not '</collision>' in line:
+                                line = original_sdf_file.readline()
+                            continue
+
+                    # Write all other lines into the new file
+                    new_sdf_file.write(line)
+
+        # Return path to the new file
+        return new_model_file
