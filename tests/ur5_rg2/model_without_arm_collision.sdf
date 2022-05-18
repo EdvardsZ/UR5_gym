@@ -422,6 +422,14 @@
             <uri>model://ur5_rg2/meshes/collision/rg2/finger.stl</uri>
           </mesh>
         </geometry>
+        <surface>
+            <friction>
+                <ode>
+                    <mu>12.15</mu>
+                    <mu2>12.15</mu2>
+                </ode>
+            </friction>
+        </surface>
       </collision>
       <visual name='rg2_leftfinger_visual'>
         <pose frame=''>0 0 0 0 -0 0</pose>
@@ -473,6 +481,14 @@
             <uri>model://ur5_rg2/meshes/collision/rg2/finger.stl</uri>
           </mesh>
         </geometry>
+        <surface>
+            <friction>
+                <ode>
+                    <mu>12.15</mu>
+                    <mu2>12.15</mu2>
+                </ode>
+            </friction>
+         </surface>
       </collision>
       <visual name='rg2_rightfinger_visual'>
         <pose frame=''>0 0 0 3.14159 -0 0</pose>
