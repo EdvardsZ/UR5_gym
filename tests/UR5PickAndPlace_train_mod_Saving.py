@@ -5,7 +5,7 @@ import functools
 import time
 import os
 import gym
-from stable_baselines3 import PPO, SAC, DDPG, HerReplayBuffer
+from stable_baselines3 import TD3, SAC, DDPG, HerReplayBuffer
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.evaluation import evaluate_policy
 from gym_ignition.utils import logger
@@ -13,9 +13,9 @@ from gym_ur5 import randomizers
 from gym_ur5.randomizers import ur5_rg2_no_rand
 from gym_ignition.runtimes import gazebo_runtime
 from gym_ur5.tasks.reach_dict import Reach
+from sb3_contrib import TQC
 
-
-algorithm = SAC
+algorithm = TQC
 timesteps = 5000000
 from gym.envs.robotics.fetch_env import FetchEnv
 algorithm_name = algorithm.__name__
@@ -38,7 +38,7 @@ model = algorithm(
     verbose = 1,
     tensorboard_log = log_path,
     gamma= 0.95,
-    learning_starts= 10000,
+    learning_starts= 100,
     replay_buffer_class = HerReplayBuffer,
     # Parameters for HER
     replay_buffer_kwargs=dict(
