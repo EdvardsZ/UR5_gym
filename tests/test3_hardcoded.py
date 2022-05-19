@@ -28,7 +28,7 @@ def solveReach(observation):
         action[i] = min(1,action[i])
     return action
 
-for epoch in range(9):
+for epoch in range(15):
 
     # Reset the environment
     observation = env.reset()

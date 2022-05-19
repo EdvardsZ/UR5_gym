@@ -97,9 +97,10 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
                 #print("getting_random", xy, ee_pos)
             #random_position = [0.52555575, 0.20615784, 1.02]
             random_position[2] = 1.05
-            cube.insert(self.world, random_position)
+            grasping_object = cube.insert(self.world, random_position)
+            grasping_object = grasping_object.to_gazebo()
+            grasping_object.set_base_world_linear_velocity_target([0.0, 0.0, 0.0])
             gazebo.run(paused=True)
-            for _ in range(10): gazebo.run(paused=True)
         # if not 'cube' in task.world.model_names():
         #    position = task.workspace_centre - task.workspace_volume/2
         #    cube.insert(task.world, position)
