@@ -2,13 +2,14 @@ import functools
 import time
 import os
 import gym
-from stable_baselines3 import PPO, DDPG, SAC
+from stable_baselines3 import TD3, DDPG, SAC
+from sb3_contrib import TQC
 import gym
 from gym_ur5 import randomizers
 
 env_id = "PickAndPlaceUR5-v0"
-total_timesteps = 1_150_000
-algorithm = SAC
+total_timesteps = 250000
+algorithm = TQC
 
 algorithm_name = algorithm.__name__
 
