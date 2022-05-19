@@ -13,7 +13,7 @@ def insert(
 
     # Download the cube SDF file
     cube_sdf = scenario_gazebo.get_model_file_from_fuel(
-        uri=uri(org="openrobotics", name="wood cube 5cm"), use_cache=False
+        uri=uri(org="openrobotics", name="wood cube 6cm"), use_cache=False
     )
 
     model_name = gym_ignition.utils.scenario.get_unique_model_name(

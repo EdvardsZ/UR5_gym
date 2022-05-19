@@ -68,7 +68,7 @@ class PickAndPlace(task.Task, abc.ABC):
     def set_action(self, action: Action) -> None:
         model = self.world.get_model(self.model_name)
         ee_position = self.get_ee_position()
-        ee_position = ee_position + (np.array(action[:3]) * 0.1)
+        ee_position = ee_position + (np.array(action[:3]) * 0.15)
 
         target_pos = ee_position
 
@@ -291,7 +291,11 @@ class PickAndPlace(task.Task, abc.ABC):
             position[2] = 1.05
             self.world.to_gazebo().remove_model('cube')
             self.gazebo.run()
-            cube.insert(self.world, position)
+            grasping_object = cube.insert(self.world, position)
+            grasping_object = grasping_object.to_gazebo()
+            grasping_object.set_base_world_linear_velocity_target([0.0, 0.0, 0.0])
+            for _ in range(20): self.gazebo.run(paused=True)
+            self.gazebo.run()
         return
 
 
