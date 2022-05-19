@@ -5,7 +5,8 @@ import functools
 import time
 import os
 import gym
-from stable_baselines3 import PPO, SAC, DDPG, HerReplayBuffer
+from stable_baselines3 import TD3, SAC, DDPG, HerReplayBuffer
+from sb3_contrib import TQC
 from stable_baselines3.common.vec_env import DummyVecEnv
 from stable_baselines3.common.evaluation import evaluate_policy
 from gym_ignition.utils import logger
@@ -13,7 +14,7 @@ from gym_ignition_environments import randomizers
 from gym_ur5.randomizers import ur5_rg2_no_rand
 from gym_ignition.runtimes import gazebo_runtime
 from gym_ur5.tasks.reach_dict import Reach
-algorithm = SAC
+algorithm = TQC
 total_timesteps = 50000
 from gym.envs.robotics.fetch_env import FetchEnv
 algorithm_name = algorithm.__name__
