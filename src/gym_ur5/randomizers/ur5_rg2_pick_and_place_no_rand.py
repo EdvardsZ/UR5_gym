@@ -43,6 +43,7 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
         gazebo = kwargs["gazebo"]
 
         gazebo.run(paused=True)
+        task.gazebo = gazebo
         # Remove the model from the simulation
         #if task.model_name is not None and task.model_name in task.world.model_names():
 
@@ -84,6 +85,8 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
             task.world.to_gazebo().remove_model('cube')
             gazebo.run(paused=True)
             gazebo.run(paused=True)
+            while 'cube' in task.world.model_names():
+                gazebo.run()
         if not 'cube' in task.world.model_names():
             random_position = task.get_workspace_random_position()
             xy = random_position[:2]
@@ -93,7 +96,7 @@ class PickAndPLaceEnvNoRandomizations(gazebo_env_randomizer.GazeboEnvRandomizer)
                 xy = task.get_workspace_random_position()[:2]
                 #print("getting_random", xy, ee_pos)
             #random_position = [0.52555575, 0.20615784, 1.02]
-            random_position[2] = 1.0575
+            random_position[2] = 1.05
             cube.insert(self.world, random_position)
             gazebo.run(paused=True)
             for _ in range(10): gazebo.run(paused=True)

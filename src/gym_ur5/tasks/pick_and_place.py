@@ -23,7 +23,7 @@ import time
 from scenario import core as scenario_core
 import enum
 from functools import partial
-
+from gym_ur5.models import cube
 class FingersAction(enum.Enum):
 
     OPEN = enum.auto()
@@ -118,7 +118,7 @@ class PickAndPlace(task.Task, abc.ABC):
         #input("Test")
         observation = {
             "observation": observation.copy(),
-            "achieved_goal": self.get_cube_position(),
+            "achieved_goal": cube_pos,
             "desired_goal": target_pos,
         }
         # Return the observation
@@ -227,8 +227,10 @@ class PickAndPlace(task.Task, abc.ABC):
     def get_target_position(self):
         return np.array(self.world.get_model('RedPoint').base_position())
     def get_cube_position(self):
-        #print(np.array(self.world.get_model('cube').base_position()))
-        return np.array(self.world.get_model('cube').base_position())
+        position = np.array(self.world.get_model('cube').base_position())
+        if(position[2] < 1.0):
+            self.respawn_cube(position)
+        return position
     def get_workspace_random_position(self):
         low = self.workspace_centre - self.workspace_volume/2
         high = self.workspace_centre + self.workspace_volume/2
@@ -283,5 +285,14 @@ class PickAndPlace(task.Task, abc.ABC):
         position = action * 1.18
         finger1.set_position_target(position=position)
         finger2.set_position_target(position=position)
+
+    def respawn_cube(self, position):
+        if 'cube' in self.world.model_names():
+            position[2] = 1.05
+            self.world.to_gazebo().remove_model('cube')
+            self.gazebo.run()
+            cube.insert(self.world, position)
+        return
+
 
 
