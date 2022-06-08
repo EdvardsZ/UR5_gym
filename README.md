@@ -1,2 +1,3 @@
 # gym-UR5
-Creating UR5 environments for opena ai gym
+Deep reinforcement learning environment in Ignition Gazebo for UR5 with RG2 gripper
+<img src="./data/reach-1.jpg"/>
